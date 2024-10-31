@@ -1,0 +1,158 @@
+int Balance = 0;
+string[] statement = new string[5];
+void BankMenu()
+{
+    bool exit = false;
+    while (!exit)
+    {
+        int Deposit = 0; int Withdraw = 0;
+        for (int i = 0; i < 5; i++)
+        {
+            Console.WriteLine("= MENU =");
+            Console.WriteLine("Deposit");
+            Console.WriteLine("Withdraw");
+            Console.WriteLine("View balance");
+            Console.WriteLine("View statement of account");
+            Console.WriteLine("Exit");
+            string choice = Console.ReadLine();
+            if (choice == "Deposit")
+            {
+                bool Deposited = false;
+                while (Deposited == false)
+                {
+                    Console.WriteLine("How much would you like to deposit?");
+                    Deposit = Convert.ToInt32(Console.ReadLine());
+                    if (Deposit > 0)
+                    {
+                        Balance = Balance + Deposit;
+                        Console.WriteLine("New balance is " + Balance);
+                        statement[i] = "Deposited " + Deposit + " Balance after deposit = " + Balance;
+                        Deposited = true;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid deposit, try again");
+                    }
+                }
+            }
+            if (choice == "Withdraw")
+            {
+                bool Withdrawn = false;
+                while (Withdrawn == false)
+                {
+                    Console.WriteLine("How much would you like to withdraw?");
+                    Withdraw = Convert.ToInt32(Console.ReadLine());
+                    if (Withdraw < Balance)
+                    {
+                        Balance = Balance - Withdraw;
+                        Console.WriteLine("New balance is " + Balance);
+                        statement[i] = "Withdrew " + Withdraw + " Balance after withdraw = " + Balance;
+                        Withdrawn = true;
+                    }
+                    if (Withdraw > Balance)
+                    {
+                        Console.WriteLine("Insufficient funds");
+                    }
+                }
+            }
+        if (choice == "View statement")
+        {
+            Console.WriteLine(statement[0]);
+            Console.WriteLine(statement[1]);
+            Console.WriteLine(statement[2]);
+            Console.WriteLine(statement[3]);
+            Console.WriteLine(statement[4]);
+        }
+        if (choice == "View balance")
+        {
+            Console.WriteLine("Your balance is " + Balance);
+        }
+        if (choice == "Exit")
+            break;
+        }
+    }
+}
+void AccountCreator()
+{
+    string Username; string Password = ""; string PasswordConfirm;
+    Console.WriteLine("Enter username");
+    Username = Console.ReadLine();
+    bool PasswordEntered = false;
+    while (PasswordEntered == false)
+    {
+        Console.WriteLine("Enter password");
+        Password = Console.ReadLine();
+        Console.WriteLine("Confirm password");
+        PasswordConfirm = Console.ReadLine();
+        if (Password != PasswordConfirm)
+        {
+            Console.WriteLine("Passwords do not match");
+        }
+        else
+        {
+            PasswordEntered = true;
+        }
+    }
+    Console.WriteLine("Account created");
+    Random rnd = new Random();
+    int AccountNum = rnd.Next(000000, 999999);
+    Console.WriteLine("Your account number is " + AccountNum);
+    string accountDetails = $"{AccountNum} {Username} {Password} {Balance}";
+    File.AppendAllText("Account.txt", accountDetails + Environment.NewLine);
+    BankMenu();
+}
+void LogIn()
+{
+    string[] accountDetails = File.ReadAllText("Account.txt").Split(' ');
+    if (accountDetails.Length < 4)
+    {
+        Console.WriteLine("Account file is corrupted or has insufficient data.");
+    }
+    Console.WriteLine("Enter username");
+    string InputUsername = Console.ReadLine();
+    Console.WriteLine("Enter password");
+    string InputPassword = Console.ReadLine();
+        string[] AllAccounts = File.ReadAllLines("Account.txt");
+        foreach (string Account in AllAccounts)
+        {
+            string[] AccountDetails = Account.Split(' ');
+            if (accountDetails.Length == 4)
+            {
+                int accountNumber = int.Parse(accountDetails[0]);
+                string Username = accountDetails[1];
+                string Password = accountDetails[2];
+                int AccountBalance = int.Parse(accountDetails[3]);
+                if (Username == InputUsername && Password == InputPassword)
+                {
+                    Console.WriteLine("Login successful!");
+                    Balance = AccountBalance;
+                    BankMenu();
+                }
+            }
+        }
+    Console.WriteLine("Invalid login credentials.");
+}
+void SignUpMenu()
+{
+    bool ChoiceMade = true;
+    while (ChoiceMade == true)
+    {
+        Console.WriteLine("= MENU =");
+        Console.WriteLine("Sign up");
+        Console.WriteLine("Log in");
+        string choice = Console.ReadLine();
+        if (choice == "Sign up")
+        {
+            AccountCreator();
+        }
+        if (choice == "Log in")
+        {
+            LogIn();
+        }
+        else
+        {
+            Console.WriteLine("Invalid input");
+        }
+    }
+}
+SignUpMenu();
