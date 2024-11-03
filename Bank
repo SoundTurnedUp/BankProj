@@ -41,8 +41,9 @@ void BankMenu(int AccountNumber)
                     if (Deposit > 0)
                     {
                         Balance = Balance + Deposit;
+                        Math.Round(Balance, 2, MidpointRounding.AwayFromZero);
                         UpdateAccountBalance(AccountNumber, Balance);
-                        Console.WriteLine("New balance is " + Balance);
+                        Console.WriteLine("New balance is £" + Balance);
                         Statement[TransactionCount++ % 5] = $"Deposited {Deposit}, new balance = £{Balance}";
                         Deposited = true;
                     }
@@ -62,31 +63,32 @@ void BankMenu(int AccountNumber)
                     if (Withdraw < Balance)
                     {
                         Balance = Balance - Withdraw;
+                        Math.Round(Balance, 2, MidpointRounding.AwayFromZero);
                         UpdateAccountBalance(AccountNumber, Balance);
-                        Console.WriteLine("New balance is " + Balance);
+                        Console.WriteLine("New balance is £" + Balance);
                         Statement[TransactionCount++ % 5] = $"Withdrew {Withdraw}, new balance = £{Balance}";
                         Withdrawn = true;
                     }
-                    if (Withdraw > Balance)
+                    else if (Withdraw > Balance)
                     {
                         Console.WriteLine("Insufficient funds");
                     }
                 }
             }
-            if (choice == "View statement")
-            {
-                Console.WriteLine(Statement[0]);
-                Console.WriteLine(Statement[1]);
-                Console.WriteLine(Statement[2]);
-                Console.WriteLine(Statement[3]);
-                Console.WriteLine(Statement[4]);
-            }
-            if (choice == "View balance")
-            {
-                Console.WriteLine("Your balance is " + Balance);
-            }
-            if (choice == "Exit")
-                exit = true;
+    if (choice == "View statement")
+    {
+        Console.WriteLine(Statement[0]);
+        Console.WriteLine(Statement[1]);
+        Console.WriteLine(Statement[2]);
+        Console.WriteLine(Statement[3]);
+        Console.WriteLine(Statement[4]);
+    }
+    if (choice == "View balance")
+    {
+        Console.WriteLine("Your balance is £" + Balance);
+    }
+    if (choice == "Exit")
+        exit = true;
         }
     }
 }
