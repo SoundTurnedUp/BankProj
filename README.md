@@ -1,0 +1,1 @@
+Aware I probably shouldn't use an approximating data type (double) for currency in a bank program but this is the easiest decimal method I know of right now 😬.. eventually i'll change it for something better.. i'm sure.
