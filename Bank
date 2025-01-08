@@ -1,9 +1,11 @@
+using System;
+
 class Program
 {
     static void Main()
     {
         Menu menu = new Menu();
-        menu.ShowMenu();
+        menu.ShowMainMenu();
     }
 }
 class DisplayHelper
@@ -28,7 +30,32 @@ class Menu
 {
     string? choice;
     string[] statement = new string[5];
-    public void ShowMenu()
+    public void LoginMenu
+    {
+        do
+        {
+            Console.Clear();
+            Console.Writeline("= MENU =");
+            Console.WriteLine("1. Log in");
+            Console.WriteLine("2. Sign up");
+            Console.WriteLine("Q. Quit");
+            switch(choice.ToLower().Replace(' ', ''))
+            {
+                case "1":
+                case "login":
+                    break;
+                case "2":
+                case "signup":
+                    AccountCreator();
+                    break;
+                case "q":
+                case "quit":
+                    DisplayHelper.ShowMessage("Quitting...");
+                    break;
+            }
+        } while (choice.ToLower() != "q" && choice.ToLower() != "quit");
+    }
+    public void ShowMainMenu()
     {
         do
         {
@@ -87,10 +114,14 @@ class Banking
 class FileHandlers
 {
     private const string AccountsFolder = "Accounts";
+    
+    
 }
 
 class AccountHandler
 {
+    private const string AccountsFolder = "Accounts";
+    
     public static void AccountCreator()
     {
         Console.Clear();
@@ -134,6 +165,18 @@ class AccountHandler
         else
         {
             DisplayHelper.ShowMessage("Account created!");
+        }
+    }
+    public void AccountLogin()
+    {
+        Console.Write("Enter username: ");
+        string? username = Console.ReadLine();
+        Console.Write("Enter password: ");
+        string? password = "";
+        ConsoleKeyInfo key;
+        while ((key == Console.ReadKey(true)).Key != ConsoleKey.Enter)
+        {
+            if (key.Key == ConsoleKey.Backspace && password.Length > 0)
         }
     }
 }
