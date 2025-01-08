@@ -116,7 +116,7 @@ class FileHandlers
 {
     private const string AccountsFolder = "Accounts";
 
-    public static void WriteAccountFile(string username, string password, int accountNumber, int balance = 0)
+    public static void CreateAccountFile(string username, string password, int accountNumber, int balance = 0)
     {
         if (!Directory.Exists(AccountsFolder))
         {
@@ -124,13 +124,23 @@ class FileHandlers
         }
 
         string accountDetails = $"{username} {password} {accountNumber} {balance}";
-        File.AppendAllText($"{username}.txt", accountDetails);
+        File.AppendAllText($"{username}.txt", accountDetails + Environment.NewLine);
+    }
+    public static bool AccountNumberExists()
+    {
+        if (Directory.Exists(AccountsFolder))
+        {
+            string[] files = Directory.GetFiles(AccountsFolder, "*.txt");
+
+            foreach (string file in files)
+            {
+            }
+        }
     }
 }
 
 class AccountHandler
 {
-    private const string AccountsFolder = "Accounts";
 
     public static void AccountCreator()
     {
@@ -174,7 +184,18 @@ class AccountHandler
         }
         else
         {
-            DisplayHelper.ShowMessage("Account created!");
+            try
+            {
+                Random rnd = new Random();
+                int accountNum = rnd.Next(000000, 999999);
+                
+                DisplayHelper.Pause($"Your account number is {accountNum}");
+                FileHandlers.CreateAccountFile(username, password, accountNum);
+                DisplayHelper.ShowMessage("Account created!");
+            } catch
+            {
+
+            }
         }
     }
     public static void AccountLogin()
