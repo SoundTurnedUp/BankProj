@@ -1,3 +1,5 @@
+using System.Reflection.Metadata.Ecma335;
+
 class Program
 {
     static void Main()
@@ -44,6 +46,7 @@ class Menu
             {
                 case "1":
                 case "login":
+                    ShowMainMenu(AccountHandler.AccountLogin());
                     break;
                 case "2":
                 case "signup":
@@ -140,13 +143,30 @@ class FileHandlers
             {
                 string[] accountDetails = File.ReadLines(file).First().Split(' ');
 
-                if (accountDetails[2] = accountNumber)
+                if (Convert.ToInt32(accountDetails[2]) == accountNumber)
                 {
-                    return false;
+                    return true;
                 }
             }
         }
-        return true;
+        return false;
+    }
+    public static string[] FindAccountDetails(string username, string password)
+    {
+        if (Directory.Exists(AccountsFolder))
+        {
+            string[] files = Directory.GetFiles(AccountsFolder, "*.txt");
+
+            foreach (string file in files)
+            {
+                string[] accountDetails = File.ReadLines(file).First().Split(' ');
+                if (username == accountDetails[0] && password == accountDetails[1])
+                {
+                    return accountDetails;
+                }
+            }
+        }
+        return null;
     }
 }
 
@@ -210,7 +230,7 @@ class AccountHandler
         }
         return null;
     }
-    public static void AccountLogin()
+    public static string AccountLogin()
     {
         Console.Write("Enter username: ");
         string? username = Console.ReadLine();
@@ -230,5 +250,7 @@ class AccountHandler
                 Console.Write("*");
             }
         }
+        FileHandlers.FindAccountDetails(username, password);
+        
     }
 }
