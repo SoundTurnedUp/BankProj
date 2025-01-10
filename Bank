@@ -1,11 +1,7 @@
-using System.Reflection.Metadata.Ecma335;
-
 class Program
 {
     static void Main()
     {
-        Console.BackgroundColor = ConsoleColor.DarkGray;
-        Console.ForegroundColor = ConsoleColor.Black;
         Menu menu = new Menu();
         menu.LoginMenu();
     }
@@ -232,25 +228,37 @@ class AccountHandler
     }
     public static string AccountLogin()
     {
-        Console.Write("Enter username: ");
-        string? username = Console.ReadLine();
-        Console.Write("Enter password: ");
-        string? password = "";
-        ConsoleKeyInfo key;
-        while ((key = Console.ReadKey(true)).Key != ConsoleKey.Enter)
-        {
-            if (key.Key == ConsoleKey.Backspace && password.Length > 0)
+        string? username;
+        string? password;
+            Console.Clear();
+            Console.WriteLine("Q. Quit");
+            Console.Write("Enter username: ");
+            username = Console.ReadLine();
+            Console.Write("Enter password: ");
+            password = "";
+            ConsoleKeyInfo key;
+            while ((key = Console.ReadKey(true)).Key != ConsoleKey.Enter)
             {
-                password = password[..^1];
-                Console.Write("\b \b");
+                if (key.Key == ConsoleKey.Backspace && password.Length > 0)
+                {
+                    password = password[..^1];
+                    Console.Write("\b \b");
+                }
+                else
+                {
+                    password += key.Key;
+                    Console.Write("*");
+                }
+            }
+            string[] accountDetails = FileHandlers.FindAccountDetails(username, password);
+            if (accountDetails == null)
+            {
+                DisplayHelper.ShowMessage("Account does not exist, retry username and password.");
             }
             else
             {
-                password += key.Key;
-                Console.Write("*");
+                return accountDetails[0];
             }
-        }
-        FileHandlers.FindAccountDetails(username, password);
-        
+        return null;
     }
 }
