@@ -26,7 +26,7 @@ class DisplayHelper
 }
 class Menu
 {
-    string? choice;
+    private string? choice;
     public void LoginMenu()
     {
         do
@@ -97,21 +97,33 @@ class Menu
 }
 class Banking
 {
+    private static string? amount;
     public static void Deposit(string username)
     {
-
+        string[] accountDetails = FileHandlers.FindAccountDetails(username);
+        Console.Clear();
+        Console.WriteLine("Q. Quit");
+        Console.Write("How much would you like to deposit: £");
+        amount = Console.ReadLine();
+        if (amount.ToLower() == "q")
+        {
+            return;
+        }
+        
     }
     public static void Withdraw(string username)
     {
-
+        string[] accountDetails = FileHandlers.FindAccountDetails(username);
     }
     public static void ViewBalance(string username)
     {
-
+        string[] accountDetails = FileHandlers.FindAccountDetails(username);
+        Console.Clear();
+        Console.WriteLine($"Your balance is {accountDetails[3]}");
     }
     public static void ViewStatement(string username)
     {
-
+        string[] accountDetails = FileHandlers.FindAccountDetails(username);
     }
 }
 
@@ -125,9 +137,9 @@ class FileHandlers
         {
             Directory.CreateDirectory(AccountsFolder);
         }
-
+        string filePath = Path.Combine(AccountsFolder, $"{username}_AccountDetails.txt");
         string accountDetails = $"{username} {password} {accountNumber} {balance}";
-        File.AppendAllText($"{username}.txt", accountDetails + Environment.NewLine);
+        File.AppendAllText(filePath, accountDetails + Environment.NewLine);
     }
     public static bool AccountNumberExists(int accountNumber)
     {
@@ -147,22 +159,38 @@ class FileHandlers
         }
         return false;
     }
-    public static string[] FindAccountDetails(string username, string password)
+    public static string[] FindAccountDetails(string username)
     {
-        if (Directory.Exists(AccountsFolder))
+        if (!Directory.Exists(AccountsFolder))
         {
-            string[] files = Directory.GetFiles(AccountsFolder, "*.txt");
+            Directory.CreateDirectory(AccountsFolder);
+        }
+        string[] files = Directory.GetFiles(AccountsFolder, "*.txt");
 
-            foreach (string file in files)
+        foreach (string file in files)
+        {
+            string[] accountDetails = File.ReadLines(file).First().Split(' ');
+            if (username == accountDetails[0])
             {
-                string[] accountDetails = File.ReadLines(file).First().Split(' ');
-                if (username == accountDetails[0] && password == accountDetails[1])
-                {
-                    return accountDetails;
-                }
+                return accountDetails;
             }
         }
         return null;
+    }
+    public static void WriteBalance(string username, decimal balance)
+    {
+        string[] files = Directory.GetFiles(AccountsFolder, "*.txt");
+
+        foreach (string file in files)
+        {
+            string[] accountDetails = File.ReadLines(file).First().Split(' ');
+            if (username == accountDetails[0])
+            {
+                decimal existingBalance = Convert.ToDecimal(accountDetails[3]);
+                existingBalance += balance;
+
+            }
+        }
     }
 }
 
@@ -187,9 +215,9 @@ class AccountHandler
                     password = password[..^1];
                     Console.Write("\b \b");
                 }
-                else
+                else if (!char.IsControl(key.KeyChar))
                 {
-                    password += key.Key;
+                    password += key.KeyChar;
                     Console.Write("*");
                 }
             }
@@ -202,9 +230,9 @@ class AccountHandler
                     confirmPassword = confirmPassword[..^1];
                     Console.Write("\b \b");
                 }
-                else
+                else if (!char.IsControl(key.KeyChar))
                 {
-                    confirmPassword += key.Key;
+                    confirmPassword += key.KeyChar;
                     Console.Write("*");
                 }
             }
@@ -218,10 +246,13 @@ class AccountHandler
                 passwordMatch = true;
                 Random rnd = new Random();
                 int accountNum = rnd.Next(000000, 999999);
-                DisplayHelper.Pause($"Your account number is {accountNum}");
-                FileHandlers.CreateAccountFile(username, password, accountNum);
-                DisplayHelper.ShowMessage("Account created!");
-                return username;
+                if (!FileHandlers.AccountNumberExists(accountNum))
+                {
+                    DisplayHelper.Pause($"Your account number is {accountNum}");
+                    FileHandlers.CreateAccountFile(username, password, accountNum);
+                    DisplayHelper.ShowMessage("Account created!");
+                    return username;
+                }
             }
         }
         return null;
@@ -230,6 +261,8 @@ class AccountHandler
     {
         string? username;
         string? password;
+        while (true)
+        {
             Console.Clear();
             Console.WriteLine("Q. Quit");
             Console.Write("Enter username: ");
@@ -244,13 +277,13 @@ class AccountHandler
                     password = password[..^1];
                     Console.Write("\b \b");
                 }
-                else
+                else if (!char.IsControl(key.KeyChar))
                 {
-                    password += key.Key;
+                    password += key.KeyChar;
                     Console.Write("*");
                 }
             }
-            string[] accountDetails = FileHandlers.FindAccountDetails(username, password);
+            string[] accountDetails = FileHandlers.FindAccountDetails(username);
             if (accountDetails == null)
             {
                 DisplayHelper.ShowMessage("Account does not exist, retry username and password.");
@@ -259,6 +292,6 @@ class AccountHandler
             {
                 return accountDetails[0];
             }
-        return null;
+        }
     }
 }
