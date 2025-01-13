@@ -109,7 +109,8 @@ class Banking
         {
             return;
         }
-        
+        FileHandlers.WriteBalance(username, Convert.ToDecimal(amount));
+
     }
     public static void Withdraw(string username)
     {
@@ -177,7 +178,7 @@ class FileHandlers
         }
         return null;
     }
-    public static void WriteBalance(string username, decimal balance)
+    public static void WriteBalance(string username, decimal addedBalance)
     {
         string[] files = Directory.GetFiles(AccountsFolder, "*.txt");
 
@@ -187,8 +188,9 @@ class FileHandlers
             if (username == accountDetails[0])
             {
                 decimal existingBalance = Convert.ToDecimal(accountDetails[3]);
-                existingBalance += balance;
-
+                existingBalance += addedBalance;
+                accountDetails[3] = Convert.ToString(existingBalance);
+                File.AppendAllLines(file, accountDetails);
             }
         }
     }
@@ -246,13 +248,13 @@ class AccountHandler
                 passwordMatch = true;
                 Random rnd = new Random();
                 int accountNum = rnd.Next(000000, 999999);
-                if (!FileHandlers.AccountNumberExists(accountNum))
+                while (FileHandlers.AccountNumberExists(accountNum))
                 {
-                    DisplayHelper.Pause($"Your account number is {accountNum}");
-                    FileHandlers.CreateAccountFile(username, password, accountNum);
-                    DisplayHelper.ShowMessage("Account created!");
-                    return username;
+                    accountNum = rnd.Next(000000, 999999);
                 }
+                DisplayHelper.Pause($"Your account number is {accountNum}");
+                FileHandlers.CreateAccountFile(username, password, accountNum);
+                DisplayHelper.ShowMessage("Account created!");
             }
         }
         return null;
