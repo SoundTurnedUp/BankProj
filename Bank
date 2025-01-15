@@ -105,22 +105,39 @@ class Banking
         Console.WriteLine("Q. Quit");
         Console.Write("How much would you like to deposit: £");
         amount = Console.ReadLine();
-        if (amount.ToLower() == "q")
+        switch (amount.ToLower())
         {
-            return;
+            case "q":
+            case "quit":
+                return;
+            default:
+                DisplayHelper.ShowMessage("Invalid input, try again");
+                break;
         }
         FileHandlers.WriteBalance(username, Convert.ToDecimal(amount));
-
+        DisplayHelper.ShowMessage("Your balance has been updated!")
     }
     public static void Withdraw(string username)
     {
         string[] accountDetails = FileHandlers.FindAccountDetails(username);
+        Console.Clear();
+        Console.WriteLine("Q. Quit");
+        Console.Write("How much would you like to withdraw: £");
+        amount = Console.ReadLine();
+        switch (amount.ToLower())
+        {
+            case "q":
+            case "quit":
+                return;
+            default:
+                DisplayHelper.ShowMessage("Invalid input, try again");
+                break;
     }
     public static void ViewBalance(string username)
     {
         string[] accountDetails = FileHandlers.FindAccountDetails(username);
         Console.Clear();
-        Console.WriteLine($"Your balance is {accountDetails[3]}");
+        Console.WriteLine($"Your current balance is {accountDetails[3]}");
     }
     public static void ViewStatement(string username)
     {
