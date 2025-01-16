@@ -1,0 +1,297 @@
+﻿class Program
+{
+    static void Main()
+    {
+        Menu menu = new Menu();
+        menu.LoginMenu();
+    }
+}
+class DisplayHelper
+{
+    public static void ShowMessage(string message, int displayTime = 1500)
+    {
+        Console.Clear();
+        Console.WriteLine(message);
+        Thread.Sleep(displayTime);
+        Console.Clear();
+    }
+    public static void Pause(string message)
+    {
+        Console.Clear();
+        Console.WriteLine(message);
+        Console.WriteLine("Press any key...");
+        Console.ReadKey();
+        Console.Clear();
+    }
+}
+class Menu
+{
+    private string? choice;
+    public void LoginMenu()
+    {
+        do
+        {
+            Console.Clear();
+            Console.WriteLine("= MENU =");
+            Console.WriteLine("1. Log in");
+            Console.WriteLine("2. Sign up");
+            Console.WriteLine("Q. Quit");
+            Console.Write("Enter choice: ");
+            choice = Console.ReadLine();
+            switch (choice.Replace(" ", "").ToLower())
+            {
+                case "1":
+                case "login":
+                    ShowMainMenu(AccountHandler.AccountLogin());
+                    break;
+                case "2":
+                case "signup":
+                    ShowMainMenu(AccountHandler.AccountCreator());
+                    break;
+                case "q":
+                case "quit":
+                    DisplayHelper.ShowMessage("Quitting...");
+                    break;
+            }
+        } while (choice.ToLower() != "q" && choice.ToLower() != "quit");
+    }
+    public void ShowMainMenu(string username)
+    {
+        do
+        {
+            Console.Clear();
+            Console.WriteLine("= MENU =");
+            Console.WriteLine("1. Deposit");
+            Console.WriteLine("2. Withdraw");
+            Console.WriteLine("3. View Balance");
+            Console.WriteLine("4. View statement");
+            Console.WriteLine("Q. Quit");
+            Console.Write("Enter choice: ");
+            choice = Console.ReadLine();
+            switch (choice.ToLower())
+            {
+                case "1":
+                case "deposit":
+                    Banking.Deposit(username);
+                    break;
+                case "2":
+                case "withdraw":
+                    Banking.Withdraw(username);
+                    break;
+                case "3":
+                case "view balance":
+                case "balance":
+                    Banking.ViewBalance(username);
+                    break;
+                case "4":
+                case "view statement":
+                case "statement":
+                    Banking.ViewStatement(username);
+                    break;
+                default:
+                    DisplayHelper.ShowMessage("Invalid input, try again");
+                    break;
+            }
+        } while (choice.ToLower() != "q" && choice.ToLower() != "quit");
+    }
+}
+class Banking
+{
+    private static string? amount;
+    public static void Deposit(string username)
+    {
+        string[] accountDetails = FileHandlers.FindAccountDetails(username);
+        Console.Clear();
+        Console.WriteLine("Q. Quit");
+        Console.Write("How much would you like to deposit: £");
+        amount = Console.ReadLine();
+        if (amount.ToLower() == "q")
+        {
+            return;
+        }
+        
+    }
+    public static void Withdraw(string username)
+    {
+        string[] accountDetails = FileHandlers.FindAccountDetails(username);
+    }
+    public static void ViewBalance(string username)
+    {
+        string[] accountDetails = FileHandlers.FindAccountDetails(username);
+        Console.Clear();
+        Console.WriteLine($"Your balance is {accountDetails[3]}");
+    }
+    public static void ViewStatement(string username)
+    {
+        string[] accountDetails = FileHandlers.FindAccountDetails(username);
+    }
+}
+
+class FileHandlers
+{
+    private const string AccountsFolder = "Accounts";
+
+    public static void CreateAccountFile(string username, string password, int accountNumber, decimal balance = 0)
+    {
+        if (!Directory.Exists(AccountsFolder))
+        {
+            Directory.CreateDirectory(AccountsFolder);
+        }
+        string filePath = Path.Combine(AccountsFolder, $"{username}_AccountDetails.txt");
+        string accountDetails = $"{username} {password} {accountNumber} {balance}";
+        File.AppendAllText(filePath, accountDetails + Environment.NewLine);
+    }
+    public static bool AccountNumberExists(int accountNumber)
+    {
+        if (Directory.Exists(AccountsFolder))
+        {
+            string[] files = Directory.GetFiles(AccountsFolder, "*.txt");
+
+            foreach (string file in files)
+            {
+                string[] accountDetails = File.ReadLines(file).First().Split(' ');
+
+                if (Convert.ToInt32(accountDetails[2]) == accountNumber)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    public static string[] FindAccountDetails(string username)
+    {
+        if (!Directory.Exists(AccountsFolder))
+        {
+            Directory.CreateDirectory(AccountsFolder);
+        }
+        string[] files = Directory.GetFiles(AccountsFolder, "*.txt");
+
+        foreach (string file in files)
+        {
+            string[] accountDetails = File.ReadLines(file).First().Split(' ');
+            if (username == accountDetails[0])
+            {
+                return accountDetails;
+            }
+        }
+        return null;
+    }
+    public static void WriteBalance(string username, decimal balance)
+    {
+        string[] files = Directory.GetFiles(AccountsFolder, "*.txt");
+
+        foreach (string file in files)
+        {
+            string[] accountDetails = File.ReadLines(file).First().Split(' ');
+            if (username == accountDetails[0])
+            {
+                decimal existingBalance = Convert.ToDecimal(accountDetails[3]);
+                existingBalance += balance;
+
+            }
+        }
+    }
+}
+
+class AccountHandler
+{
+
+    public static string AccountCreator()
+    {
+        Console.Clear();
+        Console.Write("Enter username: ");
+        string? username = Console.ReadLine();
+        bool passwordMatch = false;
+        while (passwordMatch == false)
+        {
+            Console.Write("Enter Password: ");
+            string password = "";
+            ConsoleKeyInfo key;
+            while ((key = Console.ReadKey(true)).Key != ConsoleKey.Enter)
+            {
+                if (key.Key == ConsoleKey.Backspace && password.Length > 0)
+                {
+                    password = password[..^1];
+                    Console.Write("\b \b");
+                }
+                else if (!char.IsControl(key.KeyChar))
+                {
+                    password += key.KeyChar;
+                    Console.Write("*");
+                }
+            }
+            Console.Write("\nConfirm Password: ");
+            string? confirmPassword = "";
+            while ((key = Console.ReadKey(true)).Key != ConsoleKey.Enter)
+            {
+                if (key.Key == ConsoleKey.Backspace && confirmPassword.Length > 0)
+                {
+                    confirmPassword = confirmPassword[..^1];
+                    Console.Write("\b \b");
+                }
+                else if (!char.IsControl(key.KeyChar))
+                {
+                    confirmPassword += key.KeyChar;
+                    Console.Write("*");
+                }
+            }
+            if (confirmPassword != password)
+            {
+                DisplayHelper.ShowMessage("Passwords do not match, try again");
+
+            }
+            else
+            {
+                passwordMatch = true;
+                Random rnd = new Random();
+                int accountNum = rnd.Next(000000, 999999);
+                if (!FileHandlers.AccountNumberExists(accountNum))
+                {
+                    DisplayHelper.Pause($"Your account number is {accountNum}");
+                    FileHandlers.CreateAccountFile(username, password, accountNum);
+                    DisplayHelper.ShowMessage("Account created!");
+                    return username;
+                }
+            }
+        }
+        return null;
+    }
+    public static string AccountLogin()
+    {
+        string? username;
+        string? password;
+        while (true)
+        {
+            Console.Clear();
+            Console.WriteLine("Q. Quit");
+            Console.Write("Enter username: ");
+            username = Console.ReadLine();
+            Console.Write("Enter password: ");
+            password = "";
+            ConsoleKeyInfo key;
+            while ((key = Console.ReadKey(true)).Key != ConsoleKey.Enter)
+            {
+                if (key.Key == ConsoleKey.Backspace && password.Length > 0)
+                {
+                    password = password[..^1];
+                    Console.Write("\b \b");
+                }
+                else if (!char.IsControl(key.KeyChar))
+                {
+                    password += key.KeyChar;
+                    Console.Write("*");
+                }
+            }
+            string[] accountDetails = FileHandlers.FindAccountDetails(username);
+            if (accountDetails == null)
+            {
+                DisplayHelper.ShowMessage("Account does not exist, retry username and password.");
+            }
+            else
+            {
+                return accountDetails[0];
+            }
+        }
+    }
+}
